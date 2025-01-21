@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Area</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-bRc2tl1AEpTjsX17"></script>
+</head>
+<body class="bg-gray-100">
+    
+    <!-- Navbar -->
+    <nav class="bg-white border-gray-200">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <a href="https://flowbite.com/" class="flex items-center space-x-3 rtl:space-x-reverse">
+                <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo" />
+                <span class="self-center text-2xl font-bold whitespace-nowrap">Pejuang Shop</span>
+            </a>
+            <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+                <button type="button" class="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+                    <span class="sr-only">Open user menu</span>
+                    <img class="w-8 h-8 rounded-full" id="photo" alt="user photo">
+                </button>
+                <!-- Dropdown menu -->
+                <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow" id="user-dropdown">
+                    <div class="px-4 py-3">
+                        <span class="block text-sm text-gray-900" id="name"></span>
+                        <span class="block text-sm  text-gray-500 truncate" id="email"></span>
+                    </div>
+                    <ul class="py-2" aria-labelledby="user-menu-button">
+                        <li>
+                            <a href="profile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="logout()">Sign out</a>
+                        </li>
+                    </ul>
+                </div>
+                <button data-collapse-toggle="navbar-user" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200" aria-controls="navbar-user" aria-expanded="false">
+                    <span class="sr-only">Open main menu</span>
+                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15" />
+                    </svg>
+                </button>
+            </div>
+            <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
+                <ul class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white">
+                    <li>
+                        <a href="member.html" class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0" aria-current="page">Home</a>
+                    </li>
+                    <li>
+                        <a href="transaksi.html" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Transactions</a>
+                    </li>
+                    <li>
+                        <a href="products.html" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Product</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Welcome Message -->
+    <div class="container mx-auto text-center my-8">
+        <h1 class="text-3xl font-bold">Welcome to the Member Area!</h1>
+        <p class="text-lg mt-2">Welcome, <span id="user-name" class="font-semibold"></span>!</p>
+    </div>
+
+    <!-- Card Section -->
+    <div class="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 pt-6 2xl:px-0" id="product-list">
+        <!-- Product cards will be injected here -->
+    </div>
+
+    <script>
+        fetch('http://localhost:3000/api/get-user-id', {
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Unauthorized access');
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('user-name').innerText = data.name;
+        })
+        .catch(error => {
+            console.error('Error fetching user ID:', error);
+            alert('Please log in first!');
+            window.location.href = "http://localhost:5500/";
+        });
+
+        fetch('http://localhost:3000/api/profile', {
+            method: 'GET',
+            credentials: 'include'
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('email').innerText = data.email;
+                document.getElementById('name').innerText = data.nama;
+                document.getElementById('photo').src = data.photo || 'https://ui-avatars.com/api/?name=' + data.name; // Gunakan gambar default jika photo kosong
+            })
+            .catch(error => {
+                console.error('Error fetching profile data:', error);
+                alert('Failed to load profile data');
+            });
+
+        function logout() {
+            fetch('http://localhost:3000/logout', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                window.location.href = "http://localhost:5500/";
+            })
+            .catch(error => {
+                console.error('Error during logout:', error);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('http://localhost:3000/list-products-self', { credentials: 'include' })
+                .then(response => response.json())
+                .then(products => {
+                    const productList = document.getElementById('product-list');
+                    productList.innerHTML = '';
+
+                    products.forEach((product) => {
+                        const productCard = document.createElement('div');
+                        productCard.classList.add('bg-white', 'shadow', 'rounded-lg', 'p-4', 'flex', 'flex-col', 'items-center');
+
+                        const productImage = document.createElement('img');
+                        productImage.src = product.photo ? `${product.photo}` : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNNLEL-qmmLeFR1nxJuepFOgPYfnwHR56vcw&s';
+                        productImage.alt = 'Product Image';
+                        productImage.classList.add('w-32', 'h-32', 'object-cover', 'rounded-lg');
+
+                        const productTitle = document.createElement('h5');
+                        productTitle.textContent = product.nama;
+                        productTitle.classList.add('text-lg', 'font-semibold', 'mt-4');
+
+                        const productPrice = document.createElement('p');
+                        productPrice.textContent = `Harga: Rp ${parseInt(product.harga).toLocaleString('id-ID')}`;
+                        productPrice.classList.add('text-sm', 'text-gray-600', 'mt-2');
+
+                        const productDescription = document.createElement('p');
+                        productDescription.textContent = `Deskripsi: ${product.deskripsi}`;
+                        productDescription.classList.add('text-sm', 'text-gray-500', 'mt-2');
+
+                        const buyButton = document.createElement('button');
+                        buyButton.textContent = 'Beli';
+                        buyButton.classList.add('mt-4', 'bg-blue-500', 'hover:bg-blue-600', 'text-white', 'py-2', 'px-4', 'rounded-lg');
+                        buyButton.onclick = () => {
+                            fetch('http://localhost:3000/api/create-transaction', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                credentials: 'include',
+                                body: JSON.stringify({ product_id: product.id })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.token) {
+                                    window.snap.pay(data.token, {
+                                        onSuccess: function(result) {
+                                            alert("Payment Success!");
+                                            fetch('http://localhost:3000/api/update-transaction', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    order_id: result.order_id,
+                                                    status: 'success'
+                                                })
+                                            });
+                                        },
+                                        onPending: function(result) {
+                                            alert("Waiting for your payment!");
+                                        },
+                                        onError: function(result) {
+                                            alert("Payment Failed!");
+                                        },
+                                        onClose: function() {
+                                            alert('You closed the popup without finishing the payment');
+                                        }
+                                    });
+                                } else {
+                                    alert(data.error || 'Failed to create transaction');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Failed to create transaction');
+                            });
+                        };
+
+                        productCard.appendChild(productImage);
+                        productCard.appendChild(productTitle);
+                        productCard.appendChild(productPrice);
+                        productCard.appendChild(productDescription);
+                        productCard.appendChild(buyButton);
+
+                        productList.appendChild(productCard);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching product list:', error);
+                });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+</body>
+</html>
